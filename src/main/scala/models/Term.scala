@@ -2,13 +2,56 @@ package models
 
 import language.implicitConversions
 
-sealed trait Term
+case class Position(pos: List[Int]) {
+  def +(that: Position): Position = Position(pos ++ that.pos)
+  def +(that: Int): Position = Position(pos :+ that)
+
+  override def toString = pos mkString "."
+}
+
+object Position {
+  val zero = Position(List(0))
+}
+
+sealed trait Term {
+
+  type Substitution = Map[Var, Term]
+
+  def positions: List[Position]
+  def terms: List[Term]
+
+  // def rewrite(substitution: Substitution): Term
+}
 
 case class Var(varSymbol: VarSymbol) extends Term {
+  override val positions: List[Position] = List(Position.zero)
+  override val terms: List[Term] = List(this)
+
+  //override def rewrite(substitution: Substitution): Term = ???
+
   override def toString = varSymbol.name
 }
 
-case class Func(funcSymbol: FuncSymbol, terms: Term*) extends Term {
-  assert(terms.length == funcSymbol.arity, "Mismatch of arity and terms")
-  override def toString = funcSymbol.name + terms.mkString("(", ",", ")")
+object Var {
+  def of(name: String) = new Var(VarSymbol.of(name))
+}
+
+case class Func(funcSymbol: FuncSymbol, ts: Term*) extends Term {
+  assert(ts.length == funcSymbol.arity, "Mismatch of arity and terms")
+
+  override def positions: List[Position] = positionsFrom(Position.zero)
+
+  private def positionsFrom(prefix: Position): List[Position] =
+    prefix :: ts.toList.zipWithIndex.flatMap {
+      case (term, index) => term match {
+        case Var(_) => List(prefix + index)
+        case f: Func => f.positionsFrom(prefix + index)
+      }
+    }
+
+  override def terms: List[Term] = this :: ts.toList.flatMap(_.terms)
+
+  //override def rewrite(substitution: Substitution): Term = ???
+
+  override def toString = funcSymbol.name + ts.mkString("(", ",", ")")
 }
