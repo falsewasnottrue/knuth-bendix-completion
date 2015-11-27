@@ -3,9 +3,7 @@ package models
 import language.implicitConversions
 
 case class Position(pos: List[Int]) {
-  def +(that: Position): Position = Position(pos ++ that.pos)
   def +(that: Int): Position = Position(pos :+ that)
-
   override def toString = pos mkString "."
 }
 
@@ -14,20 +12,19 @@ object Position {
 }
 
 sealed trait Term {
-
   type Substitution = Map[Var, Term]
 
   def positions: List[Position]
   def terms: List[Term]
 
-  // def rewrite(substitution: Substitution): Term
+  def rewrite(s: Substitution): Term
 }
 
 case class Var(varSymbol: VarSymbol) extends Term {
   override val positions: List[Position] = List(Position.zero)
   override val terms: List[Term] = List(this)
 
-  //override def rewrite(substitution: Substitution): Term = ???
+  override def rewrite(s: Substitution): Term = s.getOrElse(this, this)
 
   override def toString = varSymbol.name
 }
@@ -51,7 +48,7 @@ case class Func(funcSymbol: FuncSymbol, ts: Term*) extends Term {
 
   override def terms: List[Term] = this :: ts.toList.flatMap(_.terms)
 
-  //override def rewrite(substitution: Substitution): Term = ???
+  override def rewrite(s: Substitution): Term = Func(funcSymbol, ts.map(_.rewrite(s)):_*)
 
   override def toString = funcSymbol.name + ts.mkString("(", ",", ")")
 }

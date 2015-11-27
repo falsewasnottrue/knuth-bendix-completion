@@ -92,5 +92,63 @@ class FuncSpec extends Specification {
       ts.length must equalTo(5)
       ts must equalTo(t :: Func(f, x, x) :: x :: x :: x :: Nil)
     }
+
+    "rewrite with empty substitution" in {
+      val x = Var.of("x")
+      val y = Var.of("y")
+      val f = FuncSymbol.of("f", 2)
+      val t = Func(f, x, y)
+
+      val subst = Map[Var, Term]()
+
+      t.rewrite(subst) must equalTo(t)
+    }
+
+    "rewrite with disjoint substitution" in {
+      val x = Var.of("x")
+      val y = Var.of("y")
+      val f = FuncSymbol.of("f", 2)
+      val t = Func(f, x, y)
+
+      val subst = Map[Var, Term](Var.of("z") -> x)
+
+      t.rewrite(subst) must equalTo(t)
+    }
+
+    "rewrite with actual substitution" in {
+      val x = Var.of("x")
+      val y = Var.of("y")
+      val z = Var.of("z")
+      val f = FuncSymbol.of("f", 2)
+      val t = Func(f, x, y)
+
+      val subst = Map[Var, Term](x -> z)
+
+      t.rewrite(subst) must equalTo(Func(f, z, y))
+    }
+
+    "rewrite with term (not var)" in {
+      val x = Var.of("x")
+      val y = Var.of("y")
+      val f = FuncSymbol.of("f", 2)
+      val t = Func(f, x, y)
+      val t2 = Func(f, y, x)
+
+      val subst = Map[Var, Term](x -> t2)
+
+      t.rewrite(subst) must equalTo(Func(f, t2, y))
+    }
+
+    "rewrite at several positions" in {
+      val x = Var.of("x")
+      val z = Var.of("z")
+      val f = FuncSymbol.of("f", 2)
+      val t = Func(f, x, x)
+
+      val subst = Map[Var, Term](x -> z)
+
+      t.rewrite(subst) must equalTo(Func(f, z, z))
+    }
+
   }
 }
