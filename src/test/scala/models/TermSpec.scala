@@ -13,7 +13,7 @@ class TermSpec extends Specification{
     }
 
     "be buildable with no argument" in {
-      val f = FuncSymbol.of("f", 0)
+      val f = FunctionSymbol.of("f", 0)
 
       val term: Term = Func(f)
       term.toString must equalTo("f()")
@@ -21,7 +21,7 @@ class TermSpec extends Specification{
 
     "be buildable with one argument" in {
       val x = VarSymbol.of("x")
-      val f = FuncSymbol.of("f", 1)
+      val f = FunctionSymbol.of("f", 1)
 
       val term: Term = Func(f, x)
       term.toString must equalTo("f(x)")
@@ -29,14 +29,14 @@ class TermSpec extends Specification{
 
     "be buildable with more than one argument" in {
       val x = VarSymbol.of("x")
-      val f = FuncSymbol.of("f", 2)
+      val f = FunctionSymbol.of("f", 2)
 
       val term: Term = Func(f, x, x)
       term.toString must equalTo("f(x,x)")
     }
 
     "throw Assertion error for wrong arity" in {
-      val f = FuncSymbol.of("f", 1)
+      val f = FunctionSymbol.of("f", 1)
       Func(f) must throwAn[AssertionError]
 
       val x = VarSymbol.of("x")

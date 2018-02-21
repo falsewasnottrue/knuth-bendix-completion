@@ -2,11 +2,12 @@ package models
 
 import org.specs2.mutable.Specification
 
-class FuncSpec extends Specification {
+class FunSpec extends Specification {
 
   "Func" should {
+
     "implement positions for no argument" in {
-      val fs = FuncSymbol("f", 0)
+      val fs = FunctionSymbol("f", 0)
       val t: Term = Func(fs)
       val ps = t.positions
 
@@ -14,17 +15,17 @@ class FuncSpec extends Specification {
     }
 
     "implement positions for single argument" in {
-      val fs = FuncSymbol("f", 1)
+      val fs = FunctionSymbol("f", 1)
       val t: Term = Func(fs, Var.of("x"))
       // f(x) -> (0, 0.0)
       val ps = t.positions
 
       ps.length must equalTo(2)
-      ps must equalTo(Position(List(0)) :: Position(List(0,0)) :: Nil)
+      ps must equalTo(Pos(List(0)) :: Pos(List(0,0)) :: Nil)
     }
 
     "implement positions for two arguments" in {
-      val fs = FuncSymbol("f", 2)
+      val fs = FunctionSymbol("f", 2)
       val x = Var.of("x")
       // f(x,x) -> (0, 0.0, 0.1)
       val t: Term = Func(fs, x, x)
@@ -32,11 +33,11 @@ class FuncSpec extends Specification {
       val ps = t.positions
 
       ps.length must equalTo(3)
-      ps must equalTo(Position(List(0)) :: Position(List(0,0)) :: Position(List(0,1)) :: Nil)
+      ps must equalTo(Pos(List(0)) :: Pos(List(0,0)) :: Pos(List(0,1)) :: Nil)
     }
 
     "implement positions for two arguments" in {
-      val f = FuncSymbol("f", 2)
+      val f = FunctionSymbol("f", 2)
       val x = Var.of("x")
       // f(f(x,x),x) -> (0, 0.0, 0.1, 0.0.0, 0.0.1)
       val t: Term = Func(f, Func(f, x, x), x)
@@ -44,13 +45,13 @@ class FuncSpec extends Specification {
       val ps = t.positions
 
       ps.length must equalTo(5)
-      ps must equalTo(Position(List(0)) :: Position(List(0,0))
-        :: Position(List(0,0,0)) :: Position(List(0,0,1))
-        :: Position(List(0,1)) :: Nil)
+      ps must equalTo(Pos(List(0)) :: Pos(List(0,0))
+        :: Pos(List(0,0,0)) :: Pos(List(0,0,1))
+        :: Pos(List(0,1)) :: Nil)
     }
 
     "implement terms for no argument" in {
-      val fs = FuncSymbol("f", 0)
+      val fs = FunctionSymbol("f", 0)
       val t: Term = Func(fs)
       val ts = t.terms
 
@@ -59,7 +60,7 @@ class FuncSpec extends Specification {
     }
 
     "implement terms for single argument" in {
-      val f = FuncSymbol("f", 1)
+      val f = FunctionSymbol("f", 1)
       val x = Var.of("x")
       val t: Term = Func(f, x)
       // f(x) -> (0, 0.0)
@@ -70,7 +71,7 @@ class FuncSpec extends Specification {
     }
 
     "implement terms for two arguments" in {
-      val f = FuncSymbol("f", 2)
+      val f = FunctionSymbol("f", 2)
       val x = Var.of("x")
       // f(x,x) -> (0, 0.0, 0.1)
       val t: Term = Func(f, x, x)
@@ -82,7 +83,7 @@ class FuncSpec extends Specification {
     }
 
     "implement terms for two arguments" in {
-      val f = FuncSymbol("f", 2)
+      val f = FunctionSymbol("f", 2)
       val x = Var.of("x")
       // f(f(x,x),x) -> (0, 0.0, 0.1, 0.0.0, 0.0.1)
       val t: Term = Func(f, Func(f, x, x), x)
@@ -96,7 +97,7 @@ class FuncSpec extends Specification {
     "rewrite with empty substitution" in {
       val x = Var.of("x")
       val y = Var.of("y")
-      val f = FuncSymbol.of("f", 2)
+      val f = FunctionSymbol.of("f", 2)
       val t = Func(f, x, y)
 
       val subst = Map[Var, Term]()
@@ -107,7 +108,7 @@ class FuncSpec extends Specification {
     "rewrite with disjoint substitution" in {
       val x = Var.of("x")
       val y = Var.of("y")
-      val f = FuncSymbol.of("f", 2)
+      val f = FunctionSymbol.of("f", 2)
       val t = Func(f, x, y)
 
       val subst = Map[Var, Term](Var.of("z") -> x)
@@ -119,7 +120,7 @@ class FuncSpec extends Specification {
       val x = Var.of("x")
       val y = Var.of("y")
       val z = Var.of("z")
-      val f = FuncSymbol.of("f", 2)
+      val f = FunctionSymbol.of("f", 2)
       val t = Func(f, x, y)
 
       val subst = Map[Var, Term](x -> z)
@@ -130,7 +131,7 @@ class FuncSpec extends Specification {
     "rewrite with term (not var)" in {
       val x = Var.of("x")
       val y = Var.of("y")
-      val f = FuncSymbol.of("f", 2)
+      val f = FunctionSymbol.of("f", 2)
       val t = Func(f, x, y)
       val t2 = Func(f, y, x)
 
@@ -142,7 +143,7 @@ class FuncSpec extends Specification {
     "rewrite at several positions" in {
       val x = Var.of("x")
       val z = Var.of("z")
-      val f = FuncSymbol.of("f", 2)
+      val f = FunctionSymbol.of("f", 2)
       val t = Func(f, x, x)
 
       val subst = Map[Var, Term](x -> z)
